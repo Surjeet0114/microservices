@@ -1,0 +1,96 @@
+services:
+
+  # Discovery Server
+  discoveryserver:
+    image: discoveryserver:latest
+    container_name: discoveryserver
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    networks:
+      - microservice-network
+
+  # Config Server
+  configserver:
+    image: configserver:latest
+    container_name: configserver
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    environment:
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+    depends_on:
+      - discoveryserver
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - microservice-network
+
+  # Product Service
+  productservice:
+    image: productservice:latest
+    container_name: productservice
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+    depends_on:
+      discoveryserver:
+        condition: service_started
+      configserver:
+        condition: service_healthy
+    networks:
+      - microservice-network
+
+  # Order Service
+  orderservice:
+    image: orderservice:latest
+    container_name: orderservice
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+    depends_on:
+      discoveryserver:
+        condition: service_started
+      configserver:
+        condition: service_healthy
+      productservice:
+        condition: service_started
+    networks:
+      - microservice-network
+
+  # API Gateway
+  apigateway:
+    image: apigateway:latest
+    container_name: apigateway
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      CONFIG_SERVER_URL: ${CONFIG_SERVER_URL}
+      EUREKA_SERVER_URL: ${EUREKA_SERVER_URL}
+    depends_on:
+      discoveryserver:
+        condition: service_started
+      configserver:
+        condition: service_healthy
+      productservice:
+        condition: service_started
+      orderservice:
+        condition: service_started
+    networks:
+      - microservice-network
+
+# Docker Network
+networks:
+  microservice-network:
+    driver: bridge

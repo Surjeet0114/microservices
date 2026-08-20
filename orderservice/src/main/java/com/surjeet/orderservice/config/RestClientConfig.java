@@ -14,15 +14,16 @@ public class RestClientConfig {
         return RestClient.builder();
     }
 }
-    /*
+/*
     Earlier
     @Bean
     public RestClient restClient() {
         return RestClient.create();
     }
-     */
-    /*
-    Why LoadBalancer?
+*/
+
+/*
+Why LoadBalancer?
 
 Imagine later you run:
 productservice

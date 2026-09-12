@@ -18,6 +18,9 @@ import org.springframework.web.client.RestClient;
 import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadFullException;
 
+import com.surjeet.orderservice.event.OrderCreatedEvent;
+import com.surjeet.orderservice.event.OrderEventProducer;
+
 import java.util.List;
 
 @Service
@@ -45,16 +48,20 @@ public class OrderServiceImpl implements OrderService {
     //for checking of the fault tolerance
     private final CircuitBreakerRegistry circuitBreakerRegistry;
 
+    //OrderEventProducer
+    private final OrderEventProducer orderEventProducer;
+
     public OrderServiceImpl(
             OrderRepository orderRepository,
             OrderMapper orderMapper,
             RestClient.Builder builder,
-            CircuitBreakerRegistry circuitBreakerRegistry
+            CircuitBreakerRegistry circuitBreakerRegistry,
+            OrderEventProducer orderEventProducer
 
-//          RestTemplate restTemplate,
-//          RestClient restClient,
-//          ProductClient productClient
-    ) {
+//      RestTemplate restTemplate,
+//      RestClient restClient,
+//      ProductClient productClient
+    ){
 
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
@@ -66,6 +73,7 @@ public class OrderServiceImpl implements OrderService {
         // this.productClient = productClient;
 
         this.circuitBreakerRegistry = circuitBreakerRegistry;
+        this.orderEventProducer = orderEventProducer;
     }
 
     @Override
@@ -106,6 +114,18 @@ public class OrderServiceImpl implements OrderService {
 
         // Save Order
         Order savedOrder = orderRepository.save(order);
+
+        // Create Kafka Event
+        OrderCreatedEvent event = new OrderCreatedEvent(
+                savedOrder.getId(),
+                savedOrder.getProductId(),
+                savedOrder.getProductName(),
+                savedOrder.getQuantity(),
+                savedOrder.getTotalAmount()
+        );
+
+        // Publish Event to Kafka
+        orderEventProducer.sendOrderCreatedEvent(event);
 
         // Convert Entity -> DTO
         OrderResponseDto response =

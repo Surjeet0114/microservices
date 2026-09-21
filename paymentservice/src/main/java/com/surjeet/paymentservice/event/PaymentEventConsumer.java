@@ -23,36 +23,13 @@ public class PaymentEventConsumer {
                 "OrderCreatedEvent received: " + event
         );
 
-        paymentService.processPayment(
-                event.orderId(),
-                event.totalAmount()
-        );
+        paymentService.processOrderCreatedEvent(event);
 
         System.out.println(
-                "Payment processed successfully for order: "
+                "Payment processing completed for event: "
+                        + event.eventId()
+                        + ", order: "
                         + event.orderId()
         );
     }
 }
-
-/*
-What happens now?
-Kafka receives JSON:
-
-{
-  "orderId": 1,
-  "productId": 10,
-  "productName": "Laptop",
-  "quantity": 2,
-  "totalAmount": 100000.0
-}
-        ↓ JsonDeserializer
-
-OrderCreatedEvent object
-        ↓
-@KafkaListener
-        ↓
-PaymentService.processPayment(1, 100000.0)
-        ↓
-Payment saved in postgres
-*/

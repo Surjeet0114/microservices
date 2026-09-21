@@ -54,5 +54,5 @@ OrderCreatedEvent object
         ↓
 PaymentService.processPayment(1, 100000.0)
         ↓
-Payment saved in H2
+Payment saved in postgres
 */

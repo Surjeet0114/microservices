@@ -4,6 +4,7 @@ import com.surjeet.paymentservice.entity.Payment;
 import com.surjeet.paymentservice.entity.ProcessedEvent;
 import com.surjeet.paymentservice.enums.PaymentStatus;
 import com.surjeet.paymentservice.event.OrderCreatedEvent;
+import com.surjeet.paymentservice.exception.InvalidOrderEventException;
 import com.surjeet.paymentservice.repository.PaymentRepository;
 import com.surjeet.paymentservice.repository.ProcessedEventRepository;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +54,14 @@ public class PaymentServiceImpl implements PaymentService {
          */
         Optional<ProcessedEvent> existingEvent =
                 processedEventRepository.findByEventId(event.eventId());
+
+        if (event.orderId() == null ||
+                event.totalAmount() == null) {
+
+            throw new InvalidOrderEventException(
+                    "Invalid order event: orderId and totalAmount are required"
+            );
+        }
 
         if (existingEvent.isPresent()) {
 

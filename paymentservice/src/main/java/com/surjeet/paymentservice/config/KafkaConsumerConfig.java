@@ -1,20 +1,20 @@
 package com.surjeet.paymentservice.config;
 
-import com.surjeet.paymentservice.event.OrderCreatedEvent;
 import org.apache.kafka.common.TopicPartition;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.util.backoff.FixedBackOff;
+import com.surjeet.paymentservice.exception.InvalidOrderEventException;
 
 @Configuration
 public class KafkaConsumerConfig {
 
     @Bean
     public DeadLetterPublishingRecoverer deadLetterPublishingRecoverer(
-            KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate) {
+            KafkaTemplate<String, String> kafkaTemplate) {
 
         return new DeadLetterPublishingRecoverer(
                 kafkaTemplate,
@@ -35,9 +35,16 @@ public class KafkaConsumerConfig {
                 2L
         );
 
-        return new DefaultErrorHandler(
-                recoverer,
-                backOff
+        DefaultErrorHandler errorHandler =
+                new DefaultErrorHandler(
+                        recoverer,
+                        backOff
+                );
+
+        errorHandler.addNotRetryableExceptions(
+                InvalidOrderEventException.class
         );
+
+        return errorHandler;
     }
 }

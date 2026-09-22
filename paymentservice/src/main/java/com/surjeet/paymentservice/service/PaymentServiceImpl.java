@@ -46,6 +46,20 @@ public class PaymentServiceImpl implements PaymentService {
     public Payment processOrderCreatedEvent(OrderCreatedEvent event) {
 
         /*
+         * Validate the Kafka event before processing it.
+         *
+         * Invalid events are permanent failures.
+         * They should not be retried by Kafka.
+         */
+        if (event.orderId() == null ||
+                event.totalAmount() == null) {
+
+            throw new InvalidOrderEventException(
+                    "Invalid order event: orderId and totalAmount are required"
+            );
+        }
+
+        /*
          * Check whether this Kafka event has already been processed.
          *
          * Kafka can deliver the same event more than once.
@@ -54,14 +68,6 @@ public class PaymentServiceImpl implements PaymentService {
          */
         Optional<ProcessedEvent> existingEvent =
                 processedEventRepository.findByEventId(event.eventId());
-
-        if (event.orderId() == null ||
-                event.totalAmount() == null) {
-
-            throw new InvalidOrderEventException(
-                    "Invalid order event: orderId and totalAmount are required"
-            );
-        }
 
         if (existingEvent.isPresent()) {
 

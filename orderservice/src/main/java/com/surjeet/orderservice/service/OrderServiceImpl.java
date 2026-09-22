@@ -7,7 +7,7 @@ import com.surjeet.orderservice.dto.OrderResponseDto;
 import com.surjeet.orderservice.dto.ProductResponseDto;
 import com.surjeet.orderservice.entity.Order;
 import com.surjeet.orderservice.entity.OutboxEvent;
-import com.surjeet.orderservice.event.OrderCreatedEvent;
+import com.surjeet.orderservice.dto.OrderCreatedEvent;
 import com.surjeet.orderservice.exception.OrderNotFoundException;
 import com.surjeet.orderservice.mapper.OrderMapper;
 import com.surjeet.orderservice.repository.OrderRepository;
@@ -116,8 +116,9 @@ public class OrderServiceImpl implements OrderService {
 
         // Create Domain Event
         OrderCreatedEvent event = new OrderCreatedEvent(
-                savedOrder.getId(),
-                savedOrder.getProductId(),
+                null,
+                savedOrder.getId().longValue(),
+                savedOrder.getProductId().longValue(),
                 savedOrder.getProductName(),
                 savedOrder.getQuantity(),
                 savedOrder.getTotalAmount()

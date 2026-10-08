@@ -2,25 +2,29 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: config-server-deployment
+  name: configserver-deployment
 
 spec:
   replicas: 1
 
   selector:
     matchLabels:
-      app: config-server
+      app: configserver
 
   template:
     metadata:
       labels:
-        app: config-server
+        app: configserver
 
     spec:
       containers:
-        - name: config-server-container
+        - name: configserver-container
           image: configserver:latest
           imagePullPolicy: IfNotPresent
 
           ports:
             - containerPort: 8888
+
+          env:
+            - name: EUREKA_SERVER_URL
+              value: http://discoveryserver:8761/eureka/

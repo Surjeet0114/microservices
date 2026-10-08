@@ -1,30 +1,29 @@
-# Deployment → Runs and manages Pods.
 apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: productservice-deployment
+  name: paymentservice-deployment
 
 spec:
   replicas: 1
 
   selector:
     matchLabels:
-      app: productservice
+      app: paymentservice
 
   template:
     metadata:
       labels:
-        app: productservice
+        app: paymentservice
 
     spec:
       containers:
-        - name: productservice-container
-          image: productservice:latest
+        - name: paymentservice-container
+          image: paymentservice:latest
           imagePullPolicy: IfNotPresent
 
           ports:
-            - containerPort: 8082
+            - containerPort: 8085
 
           env:
             - name: CONFIG_SERVER_URL
@@ -33,5 +32,5 @@ spec:
             - name: EUREKA_SERVER_URL
               value: http://discoveryserver:8761/eureka/
 
-            - name: KAFKA_BOOTSTRAP_SERVERS
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
               value: kafka:9092

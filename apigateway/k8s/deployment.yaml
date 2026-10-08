@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: apigateway-deployment
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: apigateway
+
+  template:
+    metadata:
+      labels:
+        app: apigateway
+
+    spec:
+      containers:
+        - name: apigateway-container
+          image: apigateway:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8080
+
+          env:
+            - name: CONFIG_SERVER_URL
+              value: http://configserver:8888
+
+            - name: EUREKA_SERVER_URL
+              value: http://discoveryserver:8761/eureka/

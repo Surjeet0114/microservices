@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: orderservice-deployment
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: orderservice
+
+  template:
+    metadata:
+      labels:
+        app: orderservice
+
+    spec:
+      containers:
+        - name: orderservice-container
+          image: orderservice:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 8081
+
+          env:
+            - name: CONFIG_SERVER_URL
+              value: http://configserver:8888
+
+            - name: EUREKA_SERVER_URL
+              value: http://discoveryserver:8761/eureka/
+
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092

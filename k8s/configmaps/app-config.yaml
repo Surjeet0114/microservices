@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: microservices-config
+  namespace: microservices
+
+data:
+  CONFIG_SERVER_URL: "http://configserver:8888"
+
+  EUREKA_SERVER_URL: "http://discoveryserver:8761/eureka/"
+
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"

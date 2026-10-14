@@ -3,6 +3,7 @@ kind: Service
 
 metadata:
   name: configserver
+  namespace: microservices
 
 spec:
   selector:

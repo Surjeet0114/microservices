@@ -3,6 +3,7 @@ kind: Service
 
 metadata:
   name: productservice
+  namespace: microservices
 
 spec:
   selector:

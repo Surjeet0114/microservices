@@ -3,10 +3,13 @@ kind: PersistentVolumeClaim
 
 metadata:
   name: postgres-pvc
+  namespace: microservices
 
 spec:
   accessModes:
     - ReadWriteOnce
+
+  storageClassName: manual
 
   resources:
     requests:

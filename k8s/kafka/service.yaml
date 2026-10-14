@@ -3,6 +3,7 @@ kind: Service
 
 metadata:
   name: kafka
+  namespace: microservices
 
 spec:
   selector:

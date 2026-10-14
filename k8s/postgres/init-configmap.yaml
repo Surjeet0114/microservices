@@ -3,6 +3,7 @@ kind: ConfigMap
 
 metadata:
   name: postgres-init-script
+  namespace: microservices
 
 data:
   init.sql: |

@@ -3,9 +3,18 @@ kind: Deployment
 
 metadata:
   name: apigateway-deployment
+  namespace: microservices
 
 spec:
-  replicas: 1
+  replicas: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  revisionHistoryLimit: 5
 
   selector:
     matchLabels:
@@ -25,9 +34,38 @@ spec:
           ports:
             - containerPort: 8080
 
-          env:
-            - name: CONFIG_SERVER_URL
-              value: http://configserver:8888
+          envFrom:
+            - configMapRef:
+                name: microservices-config
 
-            - name: EUREKA_SERVER_URL
-              value: http://discoveryserver:8761/eureka/
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 30
+
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "768Mi"

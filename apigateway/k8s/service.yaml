@@ -3,6 +3,7 @@ kind: Service
 
 metadata:
   name: apigateway
+  namespace: microservices
 
 spec:
   selector:
@@ -13,4 +14,4 @@ spec:
       port: 8080
       targetPort: 8080
 
-  type: NodePort
+  type: ClusterIP

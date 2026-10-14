@@ -3,6 +3,7 @@ kind: Service
 
 metadata:
   name: orderservice
+  namespace: microservices
 
 spec:
   selector:
